@@ -62,7 +62,7 @@ module RightAws
     include RightAwsBaseInterface
 
     # Amazon ELB API version being used
-    API_VERSION       = "2011-04-05"
+    API_VERSION       = "2012-06-01"
     DEFAULT_HOST      = "elasticloadbalancing.amazonaws.com"
     DEFAULT_PATH      = '/'
     DEFAULT_PROTOCOL  = 'https'
@@ -191,7 +191,8 @@ module RightAws
       if listeners.right_blank?
         listeners = { :protocol           => :http,
                       :load_balancer_port => 80,
-                      :instance_port      => 80 }
+                      :instance_port      => 80,
+                      :instance_protocol  => :http }
       end
       request_hash = merge_listeners_into_request_hash(request_hash, listeners)
       link = generate_request("CreateLoadBalancer", request_hash)
@@ -420,7 +421,8 @@ module RightAws
                                             [ (i[:protocol]           || 'HTTP').to_s.upcase,
                                                i[:load_balancer_port] || 80,
                                                i[:instance_port]      || 80,
-                                               i[:ssl_certificate_id]]
+                                               i[:ssl_certificate_id]],
+                                               (i[:instance_protocol]  || 'HTTP').to_s.upcase]
                                           },
                                           :default => :skip_nils
                                        )
@@ -460,6 +462,7 @@ module RightAws
         when 'LoadBalancerPort'   then @listener[:load_balancer_port] = @text
         when 'InstancePort'       then @listener[:instance_port]      = @text
         when 'SSLCertificateId'   then @listener[:ssl_certificate_id] = @text
+        when 'InstanceProtocol'   then @listener[:instance_protocol]  = @text
         when 'CanonicalHostedZoneName'   then @item[:canonical_hosted_zone_name] = @text
         when 'CanonicalHostedZoneNameID' then @item[:canonical_hosted_zone_name_id] = @text
         end
